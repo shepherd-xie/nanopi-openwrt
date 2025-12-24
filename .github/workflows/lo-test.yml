@@ -250,13 +250,10 @@ jobs:
           make image PACKAGES="$PACKAGES $LUCI $LP luci-i18n-base-zh-cn luci-i18n-firewall-zh-cn" FILES="files"
           rm -f $SEED_BASE
 
-          DATE=$(TZ=UTC-8 date +%Y%m%d)
-          FW_PREFIX="${DEVICE}_${DATE}"
           mkdir -p $GITHUB_WORKSPACE/release
-          OUT="$FW_PREFIX_slim.img.gz"
-          mv $(ls -1 ./bin/targets/*/*/*img.gz | head -1) $GITHUB_WORKSPACE/release/$OUT
-          cd $GITHUB_WORKSPACE/release/ && md5sum $OUT > $OUT.md5
-          gzip -dc $OUT | md5sum | sed "s/-/${FW_PREFIX}_slim.img/" > ${FW_PREFIX}_slim.img.md5
+          mv $(ls -1 ./bin/targets/*/*/*img.gz | head -1) $GITHUB_WORKSPACE/release/$DEVICE-slim.img.gz
+          cd $GITHUB_WORKSPACE/release/ && md5sum $DEVICE-slim.img.gz > $DEVICE-slim.img.gz.md5
+          gzip -dc $DEVICE-slim.img.gz | md5sum | sed "s/-/$DEVICE-slim.img/" > $DEVICE-slim.img.md5
           echo "strDate=$(TZ=UTC-8 date +%Y-%m-%d)" >> $GITHUB_ENV
           echo "strDevice=$(echo $DEVICE | awk '{print toupper($0)}')" >> $GITHUB_ENV
 
@@ -303,13 +300,10 @@ jobs:
           LP=$(echo $LUCI | sed 's/-app-/-i18n-/g;s/ /\n/g' | xargs -ri grep -o {}-zh-cn package.files | xargs echo)
           make image PACKAGES="$PACKAGES $LUCI $LP luci-i18n-base-zh-cn luci-i18n-firewall-zh-cn" FILES="files"
 
-          DATE=$(TZ=UTC-8 date +%Y%m%d)
-          FW_PREFIX="${DEVICE}_${DATE}"
           mkdir -p $GITHUB_WORKSPACE/release
-          OUT_MAIN="$FW_PREFIX_full.img.gz"
-          mv $(ls -1 ./bin/targets/*/*/*img.gz | head -1) $GITHUB_WORKSPACE/release/$OUT_MAIN
-          cd $GITHUB_WORKSPACE/release/ && md5sum $OUT_MAIN > $OUT_MAIN.md5
-          gzip -dc $OUT_MAIN | md5sum | sed "s/-/${FW_PREFIX}_full.img/" > ${FW_PREFIX}_full.img.md5
+          mv $(ls -1 ./bin/targets/*/*/*img.gz | head -1) $GITHUB_WORKSPACE/release/$DEVICE.img.gz
+          cd $GITHUB_WORKSPACE/release/ && md5sum $DEVICE.img.gz > $DEVICE.img.gz.md5
+          gzip -dc $DEVICE.img.gz | md5sum | sed "s/-/$DEVICE.img/" > $DEVICE.img.md5
           echo "strDate=$(TZ=UTC-8 date +%Y-%m-%d)" >> $GITHUB_ENV
           echo "strDevice=$(echo $DEVICE | awk '{print toupper($0)}')" >> $GITHUB_ENV
 
@@ -321,10 +315,9 @@ jobs:
           LUCI=$(cat $GITHUB_WORKSPACE/$DEVICE.config.seed $GITHUB_WORKSPACE/common.seed | grep CONFIG_PACKAGE_luci-app | sed 's/CONFIG_PACKAGE_//;s/=y//' | xargs -ri grep -o {} package.files | sort -u | xargs echo)
           LP=$(echo $LUCI | sed 's/-app-/-i18n-/g;s/ /\n/g' | xargs -ri grep -o {}-zh-cn package.files | xargs echo | xargs echo)
           make image PACKAGES="$PACKAGES $LUCI $LP luci-i18n-base-zh-cn luci-i18n-firewall-zh-cn" FILES="files"
-          OUT_DOCKER="$FW_PREFIX_docker.img.gz"
-          mv $(ls -1 ./bin/targets/*/*/*img.gz | head -1) $GITHUB_WORKSPACE/release/$OUT_DOCKER
-          cd $GITHUB_WORKSPACE/release/ && md5sum $OUT_DOCKER > $OUT_DOCKER.md5
-          gzip -dc $OUT_DOCKER | md5sum | sed "s/-/${FW_PREFIX}_docker.img/" > ${FW_PREFIX}_docker.img.md5
+          mv $(ls -1 ./bin/targets/*/*/*img.gz | head -1) $GITHUB_WORKSPACE/release/$DEVICE-with-docker.img.gz
+          cd $GITHUB_WORKSPACE/release/ && md5sum $DEVICE-with-docker.img.gz > $DEVICE-with-docker.img.gz.md5
+          gzip -dc $DEVICE-with-docker.img.gz | md5sum | sed "s/-/$DEVICE-with-docker.img/" > $DEVICE-with-docker.img.md5
 
       - name: Upload release asset
         uses: svenstaro/upload-release-action@v2
